@@ -8,8 +8,7 @@ import com.codahale.metrics.Timer;
 import com.codahale.metrics.annotation.ExceptionMetered;
 import com.codahale.metrics.annotation.Timed;
 import com.jshx.kafka.MessageProducer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -25,8 +24,8 @@ import java.util.Random;
  * @Description:
  */
 @Controller
+@Slf4j
 public class QundingController {
-    private static final Logger logger = LoggerFactory.getLogger(QundingController.class);
 
     @Autowired
     MessageProducer messageProducer;
@@ -51,13 +50,14 @@ public class QundingController {
     @ResponseBody
     @RequestMapping(value = "/qunding")
     public int sendQundingData(@RequestParam String body){
-        logger.debug("body data >>" + body);
+        log.info("body data >>" + body);
+        System.out.println("get data ===> " + body);
         requestMeter.mark();
         pendingJobs.inc();
         responseSizes.update(new Random().nextInt(10));
         final Timer.Context context = responses.time();
         messageProducer.sendDelimiterMessage(kafkaTest, body);
-        logger.debug("qunding message is sending...");
+        log.debug("qunding message is sending...");
         context.stop();
         return 1;
     }
